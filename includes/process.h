@@ -10,5 +10,5 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-void	creat_process(char **argv, char *env[], int *fd_infile);
+int creat_process(char **argv, char *env[], int fd);
 

@@ -12,7 +12,7 @@
 
 #include "process.h"
 #include "utils.h"
-#include "libft/libft.h"
+#include "libft.h"
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -91,7 +91,11 @@ char	**get_new_arg(char **path, char *argv)
 	}
 	return (new_arg);
 }
+/*
+./pipex infile "grep 1" "grep je" "wc -w" outfile && cat outfile
+< infile grep 1 | grep je | wc -w > outfile  && cat outfile
 
+*/
 int	main(int argc, char *argv[], char *env[])
 {
 	char	**path;
@@ -104,6 +108,7 @@ int	main(int argc, char *argv[], char *env[])
 	if (!path)
 		return (1);
 	iter = 0;
+	fd = open(argv[1], O_RDONLY);
 	while (iter != argc - 3)
 	{
 		new_arg = get_new_arg(path, argv[2 + iter]);
@@ -112,10 +117,14 @@ int	main(int argc, char *argv[], char *env[])
 			free_split(path);
 			return (1);
 		}
-		fd = open(argv[1], O_RDONLY);
-		creat_process(new_arg, env, &fd);
+		fd = creat_process(new_arg, env, fd);		//return pipefd[0]
 		free_split(new_arg);
 		iter++;
 	}
+	char c;
+	int write_file = open(argv[argc - 1], O_WRONLY);
+	while (read(fd, &c, 1))
+		write(write_file, &c, 1);
+	close(fd);
 	return (0);
 }

@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "process.h"
-#include "libft/libft.h"
+#include "libft.h"
 
 #include <sys/wait.h>
 #include <stdio.h>
@@ -19,18 +19,12 @@
 #include <unistd.h>
 #include <string.h>
 
-void    creat_process(char **argv, char *env[], int *fd_infile)
+int creat_process(char **argv, char *env[], int fd)
 {
-	int		pipefd[2];
     pid_t	cpid;
+    int     pipefd[2];
 
-    // for (int i = 0; argv[i]; i++)
-    //     printf("%s\n", argv[i]);
-    if (pipe(pipefd) == -1)
-	{
-        perror("pipe");
-        exit(EXIT_FAILURE);
-    }
+    pipe(pipefd);
     cpid = fork();
     if (cpid == -1)
 	{
@@ -39,18 +33,15 @@ void    creat_process(char **argv, char *env[], int *fd_infile)
     }
     if (cpid == 0)
 	{
-        dup2(*fd_infile, stdin->_fileno);   /*replace stdin par fd_infile*/
-        
+        dup2(fd, STDIN_FILENO);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(fd);
         close(pipefd[0]);
-        // write(pipefd[1], )
-        *fd_infile = pipefd[1];
+        close(pipefd[1]);
         execve(argv[0], argv, env);
     }
-	else
-	{
-        close(pipefd[0]);
-        // pipefd[1] = *fd_infile;
-        close(pipefd[1]);
-        wait(NULL);
-    }
+    close(pipefd[1]);
+    close(fd);
+    waitpid(cpid, NULL, 0);
+    return (pipefd[0]);
 }
