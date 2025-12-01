@@ -15,12 +15,14 @@ NAME = pipex
 SRCS_DIR = srcs/
 SOURCES =	$(SRCS_DIR)main.c				\
 			$(SRCS_DIR)process.c			\
+			$(SRCS_DIR)arg.c				\
+
 
 
 OBJ_DIR = .build/
 OBJS = $(SOURCES:$(SRCS_DIR)%.c=$(OBJ_DIR)%.o)
 
-CFLAGS = -Wall -Werror -Wextra -g -I includes/
+CFLAGS = -Wall -Werror -Wextra -g -I includes/ -I libft/
 
 all: $(NAME)
 

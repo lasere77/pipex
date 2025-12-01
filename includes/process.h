@@ -3,12 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   process.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mewen <mewen@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 10:01:30 by mcolin            #+#    #+#             */
-/*   Updated: 2025/11/27 15:52:14 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/01 23:27:57 by mewen            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int creat_process(char **argv, char *env[], int fd);
+#ifndef PROCESS_H
+# define PROCESS_H
 
+# include "libft.h"
+
+# include <sys/wait.h>
+# include <stdio.h>
+
+int	creat_process(char **argv, char *env[], int fd);
+
+#endif

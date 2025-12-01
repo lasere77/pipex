@@ -1,20 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.h                                            :+:      :+:    :+:   */
+/*   arg.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mewen <mewen@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/26 10:38:08 by mcolin            #+#    #+#             */
-/*   Updated: 2025/11/26 10:45:19 by mcolin           ###   ########.fr       */
+/*   Created: 2025/12/01 23:15:36 by mewen             #+#    #+#             */
+/*   Updated: 2025/12/01 23:23:57 by mewen            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_H
-# define UTILS_H
+#ifndef ARG_H
+# define ARG_H
 
-#include <stddef.h>
+# include "libft.h"
 
-char	*ft_strstr(char *str, char *to_find);
+# include <fcntl.h>
+
+char	**get_new_arg(char **path, char *argv);
+void	free_split(char **strs);
+char	*get_path(char *env[]);
 
 #endif
