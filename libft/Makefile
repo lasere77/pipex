@@ -6,79 +6,90 @@
 #    By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/13 12:02:16 by mcolin            #+#    #+#              #
-#    Updated: 2025/10/20 11:32:37 by mcolin           ###   ########.fr        #
+#    Updated: 2025/12/04 16:55:54 by mcolin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC=cc
-CFLAGS=-Wall -Wextra -Werror
+CFLAGS=-Wall -Wextra -Werror -I includes/
+SRCS_DIR = srcs/
 NAME=libft.a
-SOURCES=ft_atoi.c		\
-		ft_bzero.c		\
-		ft_calloc.c		\
-		ft_isalnum.c	\
-		ft_isalpha.c	\
-		ft_isascii.c	\
-		ft_isdigit.c	\
-		ft_isprint.c	\
-		ft_memchr.c		\
-		ft_memcmp.c		\
-		ft_memcpy.c		\
-		ft_memset.c		\
-		ft_strchr.c		\
-		ft_strdup.c		\
-		ft_strlcat.c	\
-		ft_strlcpy.c	\
-		ft_strlen.c		\
-		ft_strncmp.c	\
-		ft_strnstr.c	\
-		ft_strrchr.c	\
-		ft_tolower.c	\
-		ft_toupper.c	\
-		ft_substr.c		\
-		ft_memmove.c	\
-		ft_strjoin.c	\
-		ft_split.c		\
-		ft_strtrim.c	\
-		ft_itoa.c		\
-		ft_strmapi.c	\
-		ft_striteri.c	\
-		ft_putchar_fd.c	\
-		ft_putstr_fd.c	\
-		ft_putendl_fd.c	\
-		ft_putnbr_fd.c	
+SOURCES=$(SRCS_DIR)stdlib/ft_atoi.c					\
+		$(SRCS_DIR)stdlib/ft_calloc.c				\
+		$(SRCS_DIR)stdlib/ft_split.c				\
+		$(SRCS_DIR)stdlib/ft_itoa.c					\
+		$(SRCS_DIR)stdlib/gnl/get_next_line.c		\
+		$(SRCS_DIR)stdlib/gnl/get_next_line_utils.c	\
+		$(SRCS_DIR)ctype/ft_isalnum.c				\
+		$(SRCS_DIR)ctype/ft_isalpha.c				\
+		$(SRCS_DIR)ctype/ft_isascii.c				\
+		$(SRCS_DIR)ctype/ft_isdigit.c				\
+		$(SRCS_DIR)ctype/ft_isprint.c				\
+		$(SRCS_DIR)ctype/ft_tolower.c				\
+		$(SRCS_DIR)ctype/ft_toupper.c				\
+		$(SRCS_DIR)mem/ft_memchr.c					\
+		$(SRCS_DIR)mem/ft_memcmp.c					\
+		$(SRCS_DIR)mem/ft_memcpy.c					\
+		$(SRCS_DIR)mem/ft_memset.c					\
+		$(SRCS_DIR)mem/ft_memmove.c					\
+		$(SRCS_DIR)mem/ft_bzero.c					\
+		$(SRCS_DIR)str/ft_strchr.c					\
+		$(SRCS_DIR)str/ft_strdup.c					\
+		$(SRCS_DIR)str/ft_strlcat.c					\
+		$(SRCS_DIR)str/ft_strlcpy.c					\
+		$(SRCS_DIR)str/ft_strlen.c					\
+		$(SRCS_DIR)str/ft_strncmp.c					\
+		$(SRCS_DIR)str/ft_strnstr.c					\
+		$(SRCS_DIR)str/ft_strrchr.c					\
+		$(SRCS_DIR)str/ft_substr.c					\
+		$(SRCS_DIR)str/ft_strjoin.c					\
+		$(SRCS_DIR)str/ft_strtrim.c					\
+		$(SRCS_DIR)str/ft_strmapi.c					\
+		$(SRCS_DIR)str/ft_striteri.c				\
+		$(SRCS_DIR)stdio/ft_putchar_fd.c			\
+		$(SRCS_DIR)stdio/ft_putstr_fd.c				\
+		$(SRCS_DIR)stdio/ft_putendl_fd.c			\
+		$(SRCS_DIR)stdio/ft_putnbr_fd.c				\
+		$(SRCS_DIR)stdio/printf/ft_printf.c			\
+		$(SRCS_DIR)stdio/printf/ft_printf_putstr.c	\
+		$(SRCS_DIR)stdio/printf/ft_printf_putnbr.c	\
+		$(SRCS_DIR)lst/ft_lstnew.c					\
+		$(SRCS_DIR)lst/ft_lstadd_front.c			\
+		$(SRCS_DIR)lst/ft_lstsize.c					\
+		$(SRCS_DIR)lst/ft_lstlast.c					\
+		$(SRCS_DIR)lst/ft_lstadd_back.c				\
+		$(SRCS_DIR)lst/ft_lstdelone.c				\
+		$(SRCS_DIR)lst/ft_lstclear.c				\
+		$(SRCS_DIR)lst/ft_lstiter.c					\
+		$(SRCS_DIR)lst/ft_lstmap.c
 
-BONUS_SRC=	ft_lstnew_bonus.c		\
-			ft_lstadd_front_bonus.c	\
-			ft_lstsize_bonus.c		\
-			ft_lstlast_bonus.c		\
-			ft_lstadd_back_bonus.c	\
-			ft_lstdelone_bonus.c	\
-			ft_lstclear_bonus.c		\
-			ft_lstiter_bonus.c		\
-			ft_lstmap_bonus.c
+OBJ_DIR = .build/
+OBJS = $(SOURCES:$(SRCS_DIR)%.c=$(OBJ_DIR)%.o)
 
-ALL_SRCS= $(BONUS_SRC) $(SOURCES)
-
-BONUS_OBJECTS=$(ALL_SRCS:.c=.o)
-OBJECTS=$(SOURCES:.c=.o)
+CFLAGS = -Wall -Werror -Wextra -g -I includes/
 
 all: $(NAME)
 
-$(NAME): $(OBJECTS)
-	ar rcs -o $(NAME) $(OBJECTS)
+$(NAME): $(OBJS)
+	ar rcs -o $(NAME) $(OBJS)
 
-%.o: %.c
-	$(CC) -c $(CFLAGS) -I . $< -o $@
-
-bonus: $(BONUS_OBJECTS)
-	ar rcs -o $(NAME) $(BONUS_OBJECTS)
-
-clean:
-	rm -f $(OBJECTS) $(BONUS_OBJECTS)
+$(OBJ_DIR)%.o: $(SRCS_DIR)%.c
+	@mkdir -p .build/
+	@mkdir -p .build/str
+	@mkdir -p .build/lst
+	@mkdir -p .build/mem
+	@mkdir -p .build/ctype
+	@mkdir -p .build/stdio
+	@mkdir -p .build/stdio/printf
+	@mkdir -p .build/stdlib
+	@mkdir -p .build/stdlib/gnl
+	$(CC) $(CFLAGS) $< -c -o $@
 
 fclean: clean
-	rm -f $(NAME)
+	rm -rf $(NAME)
+
+clean:
+	rm -rf $(OBJ_DIR)
 
 re: fclean all
 

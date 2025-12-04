@@ -6,7 +6,7 @@
 #    By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/20 21:59:30 by mcolin            #+#    #+#              #
-#    Updated: 2025/11/26 15:15:19 by mcolin           ###   ########.fr        #
+#    Updated: 2025/12/04 17:08:02 by mcolin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,17 +17,15 @@ SOURCES =	$(SRCS_DIR)main.c				\
 			$(SRCS_DIR)process.c			\
 			$(SRCS_DIR)arg.c				\
 
-
-
 OBJ_DIR = .build/
 OBJS = $(SOURCES:$(SRCS_DIR)%.c=$(OBJ_DIR)%.o)
 
-CFLAGS = -Wall -Werror -Wextra -g -I includes/ -I libft/
+CFLAGS = -Wall -Werror -Wextra -g -I includes/ -I libft/includes/
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(MAKE) bonus --no-print-directory -C libft/
+	$(MAKE) --no-print-directory -C libft/
 	$(CC) $(OBJS) $(CFLAGS) libft/libft.a -o $(NAME)
 
 $(OBJ_DIR)%.o: $(SRCS_DIR)%.c
