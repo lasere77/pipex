@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 10:00:00 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/04 17:23:19 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/04 19:00:31 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,16 @@
 
 static void	child_fonction(char **argv, char *env[], int fd, int pipefd[2])
 {
-	dup2(fd, STDIN_FILENO);
-	dup2(pipefd[1], STDOUT_FILENO);
-	close(fd);
-	close(pipefd[0]);
-	close(pipefd[1]);
-	execve(argv[0], argv, env);
-	perror("execve");
+	if (fd >= 0)
+	{
+		dup2(fd, STDIN_FILENO);
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(fd);
+		close(pipefd[0]);
+		close(pipefd[1]);
+		execve(argv[0], argv, env);
+		perror("execve");
+	}
 	exit(EXIT_FAILURE);
 }
 

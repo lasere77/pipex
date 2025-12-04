@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 09:35:56 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/04 18:08:22 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/04 19:22:04 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,7 @@ static int	open_input_file(char *file_path)
 
 	fd = open(file_path, O_RDONLY);
 	if (fd == -1)
-	{
 		perror("open");
-		exit(EXIT_FAILURE);
-	}
 	return (fd);
 }
 
