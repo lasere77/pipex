@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mewen <mewen@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 10:01:30 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/01 23:27:57 by mewen            ###   ########.fr       */
+/*   Updated: 2025/12/04 17:40:08 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,6 @@
 # include <sys/wait.h>
 # include <stdio.h>
 
-int	creat_process(char **argv, char *env[], int fd);
+int	creat_process(char **argv, char *env[], int fd, pid_t *tab_pid);
 
 #endif

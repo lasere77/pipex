@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mewen <mewen@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 09:35:56 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/01 23:18:40 by mewen            ###   ########.fr       */
+/*   Updated: 2025/12/04 18:08:22 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,12 @@ static int	open_input_file(char *file_path)
 static int	main_loop(int argc, char *argv[], char **path, int fd)
 {
 	char	**new_arg;
+	pid_t	*tab_pid;
 	int		iter;
 
+	tab_pid = malloc(sizeof(pid_t) * (argc - 3 + 1));
+	if (!tab_pid)
+		return (-1);
 	iter = 0;
 	while (iter != argc - 3)
 	{
@@ -52,24 +56,16 @@ static int	main_loop(int argc, char *argv[], char **path, int fd)
 			free_split(path);
 			exit(EXIT_FAILURE);
 		}
-		fd = creat_process(new_arg, &argv[argc + 1], fd);
+		fd = creat_process(new_arg, &argv[argc + 1], fd, &tab_pid[iter]);
 		free_split(new_arg);
 		iter++;
 	}
+	for (int i = 0; i != argc - 3; i++)
+		waitpid(tab_pid[i], NULL, 0);
+	free(tab_pid);
 	return (fd);
 }
 
-/*
-./pipex infile "grep 1" "grep je" "wc -w" outfile && cat outfile
-< infile grep 1 | grep je | wc -w > outfile  && cat outfile
-
-./pipex infile "cat" outfile && cat outfile
-./pipex infile "grep fd" outfile && cat outfile
-TO DO:
-
-BONUS:
-	gnl for <<
-*/
 int	main(int argc, char *argv[], char *env[])
 {
 	char	**path;
@@ -80,6 +76,8 @@ int	main(int argc, char *argv[], char *env[])
 		return (EXIT_FAILURE);
 	fd = main_loop(argc, argv, path, open_input_file(argv[1]));
 	free_split(path);
+	if (fd == -1)
+		return (EXIT_FAILURE);
 	write_in_file(argv[argc - 1], fd);
 	close(fd);
 	return (0);

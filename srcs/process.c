@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mewen <mewen@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 10:00:00 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/01 23:18:16 by mewen            ###   ########.fr       */
+/*   Updated: 2025/12/04 17:23:19 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static void	child_fonction(char **argv, char *env[], int fd, int pipefd[2])
 	exit(EXIT_FAILURE);
 }
 
-int	creat_process(char **argv, char *env[], int fd)
+int	creat_process(char **argv, char *env[], int fd, pid_t *tab_pid)
 {
 	pid_t	pid;
 	int		pipefd[2];
@@ -44,6 +44,6 @@ int	creat_process(char **argv, char *env[], int fd)
 		child_fonction(argv, env, fd, pipefd);
 	close(pipefd[1]);
 	close(fd);
-	waitpid(pid, NULL, 0);
+	tab_pid[0] = pid;
 	return (pipefd[0]);
 }
