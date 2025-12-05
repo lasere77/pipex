@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 09:35:56 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/05 10:26:29 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/05 18:24:03 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ static int	main_loop(int argc, char *argv[], char **path, int *fd)
 	int		iter;
 	int		status;
 
-	tab_pid = malloc(sizeof(pid_t) * (argc - 3 + 1));
+	tab_pid = ft_calloc(sizeof(pid_t), (get_nb_valid_cmd(argc, argv, path) + 1));
 	if (!tab_pid)
 		return (-1);
 	iter = 0;
@@ -61,15 +61,15 @@ static int	main_loop(int argc, char *argv[], char **path, int *fd)
 	{
 		new_arg = get_new_arg(path, argv[2 + iter]);
 		if (!new_arg)
+			printf("command not found: %s\n", argv[2 + iter]);
+		if (new_arg)
 		{
-			free_split(path);
-			exit(EXIT_FAILURE);
+			*fd = creat_process(new_arg, &argv[argc + 1], *fd, &tab_pid[iter], path);
+			free_split(new_arg);
 		}
-		*fd = creat_process(new_arg, &argv[argc + 1], *fd, &tab_pid[iter]);
-		free_split(new_arg);
 		iter++;
 	}
-	status = wait_child(argc - 3, tab_pid);
+	status = wait_child(get_nb_valid_cmd(argc, argv, path), tab_pid);
 	free(tab_pid);
 	return (status);
 }

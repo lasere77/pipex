@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   arg.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mewen <mewen@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 23:14:24 by mewen             #+#    #+#             */
-/*   Updated: 2025/12/01 23:16:36 by mewen            ###   ########.fr       */
+/*   Updated: 2025/12/05 17:52:20 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,14 +44,10 @@ static char	*get_bin_path(char **path, char *name_bin, size_t len_name_bin)
 		ft_memcpy(res + len_path + 1, name_bin, len_name_bin);
 		res[len_name_bin + 1 + len_path] = 0;
 		if (access(res, F_OK | X_OK) == 0)
-		{
-			free(name_bin);
 			return (res);
-		}
 		free(res);
 		i++;
 	}
-	free(name_bin);
 	return (NULL);
 }
 
@@ -81,7 +77,29 @@ char	**get_new_arg(char **path, char *argv)
 			free_split(new_arg);
 			return (NULL);
 		}
+		free(new_arg[0]);
 		new_arg[0] = tmp;
 	}
 	return (new_arg);
+}
+
+int	get_nb_valid_cmd(int argc, char *argv[], char **path)
+{
+	char	**new_arg;
+	int		count;
+	int		iter;
+
+	count = 0;
+	iter = 0;
+	while (iter != argc - 3)
+	{
+		new_arg = get_new_arg(path, argv[2 + iter]);
+		if (new_arg)
+		{
+			count++;
+			free_split(new_arg);
+		}
+		iter++;
+	}
+	return (count);
 }

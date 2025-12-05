@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   arg.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mewen <mewen@student.42.fr>                +#+  +:+       +#+        */
+/*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 23:15:36 by mewen             #+#    #+#             */
-/*   Updated: 2025/12/01 23:23:57 by mewen            ###   ########.fr       */
+/*   Updated: 2025/12/05 18:24:35 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,5 +20,6 @@
 char	**get_new_arg(char **path, char *argv);
 void	free_split(char **strs);
 char	*get_path(char *env[]);
+int		get_nb_valid_cmd(int argc, char *argv[], char **path);
 
 #endif
