@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 09:35:56 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/04 19:22:04 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/05 10:26:29 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,23 @@ static int	open_input_file(char *file_path)
 	return (fd);
 }
 
-static int	main_loop(int argc, char *argv[], char **path, int fd)
+static int	wait_child(int nb_child, pid_t *tab_pid)
+{
+	int	i;
+	int	status;
+
+	i = 0;
+	while (i != nb_child)
+		waitpid(tab_pid[i++], &status, 0);
+	return (status);
+}
+
+static int	main_loop(int argc, char *argv[], char **path, int *fd)
 {
 	char	**new_arg;
 	pid_t	*tab_pid;
 	int		iter;
+	int		status;
 
 	tab_pid = malloc(sizeof(pid_t) * (argc - 3 + 1));
 	if (!tab_pid)
@@ -53,29 +65,28 @@ static int	main_loop(int argc, char *argv[], char **path, int fd)
 			free_split(path);
 			exit(EXIT_FAILURE);
 		}
-		fd = creat_process(new_arg, &argv[argc + 1], fd, &tab_pid[iter]);
+		*fd = creat_process(new_arg, &argv[argc + 1], *fd, &tab_pid[iter]);
 		free_split(new_arg);
 		iter++;
 	}
-	for (int i = 0; i != argc - 3; i++)
-		waitpid(tab_pid[i], NULL, 0);
+	status = wait_child(argc - 3, tab_pid);
 	free(tab_pid);
-	return (fd);
+	return (status);
 }
 
 int	main(int argc, char *argv[], char *env[])
 {
 	char	**path;
 	int		fd;
+	int		status;
 
 	path = ft_split(get_path(env), ':');
 	if (!path)
 		return (EXIT_FAILURE);
-	fd = main_loop(argc, argv, path, open_input_file(argv[1]));
+	fd = open_input_file(argv[1]);
+	status = main_loop(argc, argv, path, &fd);
 	free_split(path);
-	if (fd == -1)
-		return (EXIT_FAILURE);
 	write_in_file(argv[argc - 1], fd);
 	close(fd);
-	return (0);
+	return (WEXITSTATUS(status));
 }
