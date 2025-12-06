@@ -6,87 +6,108 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 09:35:56 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/05 18:24:03 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/06 20:19:18 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "process.h"
+#include "cmd.h"
+#include "utils.h"
 #include "arg.h"
 
-static void	write_in_file(char *file_path, int fd)
-{
-	int		write_file;
-	char	c;
+#include <sys/wait.h>
 
-	unlink(file_path);
-	write_file = open(file_path, O_RDONLY | O_WRONLY | O_CREAT, 0644);
-	while (read(fd, &c, 1))
-		write(write_file, &c, 1);
-	close(write_file);
+static void	child_fonction(t_cmd cmd, int fd, int pipefd[2])
+{
+	if (fd >= 0)
+	{
+		dup2(fd, STDIN_FILENO);
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(fd);
+		close(pipefd[0]);
+		close(pipefd[1]);
+		execve(cmd.arg[0], cmd.arg, cmd.env);
+		perror("execve");
+	}
+	close(pipefd[0]);
+	close(pipefd[1]);
 }
 
-static int	open_input_file(char *file_path)
+static int	do_child(t_cmd *cmd, int index_cmd, int fd, pid_t *list_pid)
 {
-	int	fd;
+	pid_t	pid;
+	int		pipefd[2];
 
-	fd = open(file_path, O_RDONLY);
-	if (fd == -1)
-		perror("open");
-	return (fd);
+	if (pipe(pipefd) == -1)
+	{
+		perror("pipe");
+		panic_free(cmd, list_pid);
+	}
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("fork");
+		panic_free(cmd, list_pid);
+	}
+	if (pid == 0)
+	{
+		child_fonction(cmd[index_cmd], fd, pipefd);
+		panic_free(cmd, list_pid);
+	}
+	close(pipefd[1]);
+	if (fd > 2)
+		close(fd);
+	list_pid[0] = pid;
+	return (pipefd[0]);
 }
 
-static int	wait_child(int nb_child, pid_t *tab_pid)
+static void	wait_child(t_cmd *cmd, pid_t *list_pid)
 {
-	int	i;
-	int	status;
+	size_t	i;
 
 	i = 0;
-	while (i != nb_child)
-		waitpid(tab_pid[i++], &status, 0);
-	return (status);
+	while (i < get_nb_cmd(cmd))
+	{
+		waitpid(list_pid[i], &cmd[i].status, 0);
+		i++;
+	}
 }
 
-static int	main_loop(int argc, char *argv[], char **path, int *fd)
+static int	exec_cmd(t_cmd *cmd, int fd)
 {
-	char	**new_arg;
-	pid_t	*tab_pid;
-	int		iter;
-	int		status;
+	pid_t	*list_pid;
+	size_t	i;
 
-	tab_pid = ft_calloc(sizeof(pid_t), (get_nb_valid_cmd(argc, argv, path) + 1));
-	if (!tab_pid)
+	list_pid = malloc(sizeof(pid_t) * (get_nb_cmd(cmd) + 1));
+	if (!list_pid)
 		return (-1);
-	iter = 0;
-	while (iter != argc - 3)
+	i = 0;
+	while (i < get_nb_cmd(cmd))
 	{
-		new_arg = get_new_arg(path, argv[2 + iter]);
-		if (!new_arg)
-			printf("command not found: %s\n", argv[2 + iter]);
-		if (new_arg)
-		{
-			*fd = creat_process(new_arg, &argv[argc + 1], *fd, &tab_pid[iter], path);
-			free_split(new_arg);
-		}
-		iter++;
+		fd = do_child(cmd, i, fd, &list_pid[i]);
+		i++;
 	}
-	status = wait_child(get_nb_valid_cmd(argc, argv, path), tab_pid);
-	free(tab_pid);
-	return (status);
+	wait_child(cmd, list_pid);
+	free(list_pid);
+	return (fd);
 }
 
 int	main(int argc, char *argv[], char *env[])
 {
-	char	**path;
+	t_cmd	*cmd;
 	int		fd;
 	int		status;
 
-	path = ft_split(get_path(env), ':');
-	if (!path)
-		return (EXIT_FAILURE);
+	cmd = set_cmd(argc, argv, env);
+	if (!cmd)
+		return (1);
 	fd = open_input_file(argv[1]);
-	status = main_loop(argc, argv, path, &fd);
-	free_split(path);
+	fd = exec_cmd(cmd, fd);
+	status = cmd[get_nb_cmd(cmd) - 1].status;
+	unset_cmd(cmd);
 	write_in_file(argv[argc - 1], fd);
-	close(fd);
+	if (fd >= 0)
+		close(fd);
+	if (!is_last_cmd_valid(argc, argv, env))
+		return (127);
 	return (WEXITSTATUS(status));
 }

@@ -1,22 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   arg.h                                              :+:      :+:    :+:   */
+/*   cmd.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/01 23:15:36 by mewen             #+#    #+#             */
-/*   Updated: 2025/12/06 19:26:50 by mcolin           ###   ########.fr       */
+/*   Created: 2025/12/06 13:24:05 by mcolin            #+#    #+#             */
+/*   Updated: 2025/12/06 19:33:03 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ARG_H
-# define ARG_H
+#ifndef CMD_H
+# define CMD_H
 
-# include "libft.h"
+# include <stddef.h>
 
-char	*get_path(char *env[]);
-char	*get_bin_path(char **path, char *name_bin);
-char	**get_arg(char **path, char *arg);
+typedef struct s_cmd
+{
+	char	**arg;
+	char	**env;
+	int		status;
+	int		fd[2];
+}			t_cmd;
+
+t_cmd	*set_cmd(int argc, char **argv, char **env);
+void	unset_cmd(t_cmd	*cmd);
+size_t	get_nb_cmd(t_cmd *cmd);
 
 #endif
