@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 13:25:33 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/07 12:04:51 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/07 13:23:20 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "arg.h"
 #include "utils.h"
 #include "utils_cmd.h"
+#include "ft_printf.h"
 
 static int	get_nb_valide_cmd(int argc, char **argv, char **path)
 {
@@ -31,7 +32,7 @@ static int	get_nb_valide_cmd(int argc, char **argv, char **path)
 		if (bin_path || is_in_dir(ft_split(argv[2 + i], ' ')))
 			result++;
 		else
-			printf("command not found: %s\n", splited_arg[0]);
+			ft_printf("command not found: %s\n", splited_arg[0]);
 		free(bin_path);
 		free_split(splited_arg);
 		i++;
