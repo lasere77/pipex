@@ -1,26 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.h                                            :+:      :+:    :+:   */
+/*   process.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/05 17:41:41 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/07 11:05:00 by mcolin           ###   ########.fr       */
+/*   Created: 2025/12/07 11:14:11 by mcolin            #+#    #+#             */
+/*   Updated: 2025/12/07 12:05:17 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_H
-# define UTILS_H
+#ifndef PROCESS_H
+# define PROCESS_H
 
 # include "cmd.h"
-# include "arg.h"
+# include "utils.h"
 
-# include <stdio.h>
-# include <fcntl.h>
+# include <sys/wait.h>
 
-void	free_split(char **strs);
-char	is_in_dir(char **new_arg);
-void	panic_free(t_cmd *cmd, pid_t *list_pid);
+int		do_child(t_cmd *cmd, int index_cmd, int fd, pid_t *list_pid);
+void	wait_child(t_cmd *cmd, pid_t *list_pid);
 
 #endif

@@ -6,70 +6,38 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 09:35:56 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/06 20:19:18 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/07 12:11:19 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "arg.h"
 #include "cmd.h"
 #include "utils.h"
-#include "arg.h"
+#include "utils_cmd.h"
+#include "process.h"
 
-#include <sys/wait.h>
-
-static void	child_fonction(t_cmd cmd, int fd, int pipefd[2])
+static void	write_in_file(char *file_path, int fd)
 {
-	if (fd >= 0)
-	{
-		dup2(fd, STDIN_FILENO);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(fd);
-		close(pipefd[0]);
-		close(pipefd[1]);
-		execve(cmd.arg[0], cmd.arg, cmd.env);
-		perror("execve");
-	}
-	close(pipefd[0]);
-	close(pipefd[1]);
+	char	c;
+	int		write_file;
+
+	unlink(file_path);
+	write_file = open(file_path, O_RDONLY | O_WRONLY | O_CREAT, 0644);
+	if (write_file == -1)
+		return ;
+	while (read(fd, &c, 1))
+		write(write_file, &c, 1);
+	close(write_file);
 }
 
-static int	do_child(t_cmd *cmd, int index_cmd, int fd, pid_t *list_pid)
+static int	open_input_file(char *file_path)
 {
-	pid_t	pid;
-	int		pipefd[2];
+	int	fd;
 
-	if (pipe(pipefd) == -1)
-	{
-		perror("pipe");
-		panic_free(cmd, list_pid);
-	}
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		panic_free(cmd, list_pid);
-	}
-	if (pid == 0)
-	{
-		child_fonction(cmd[index_cmd], fd, pipefd);
-		panic_free(cmd, list_pid);
-	}
-	close(pipefd[1]);
-	if (fd > 2)
-		close(fd);
-	list_pid[0] = pid;
-	return (pipefd[0]);
-}
-
-static void	wait_child(t_cmd *cmd, pid_t *list_pid)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < get_nb_cmd(cmd))
-	{
-		waitpid(list_pid[i], &cmd[i].status, 0);
-		i++;
-	}
+	fd = open(file_path, O_RDONLY);
+	if (fd == -1)
+		perror("open");
+	return (fd);
 }
 
 static int	exec_cmd(t_cmd *cmd, int fd)

@@ -6,13 +6,14 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 13:25:33 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/06 20:11:09 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/07 12:04:51 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cmd.h"
 #include "arg.h"
 #include "utils.h"
+#include "utils_cmd.h"
 
 static int	get_nb_valide_cmd(int argc, char **argv, char **path)
 {
@@ -27,7 +28,7 @@ static int	get_nb_valide_cmd(int argc, char **argv, char **path)
 	{
 		splited_arg = ft_split(argv[2 + i], ' ');
 		bin_path = get_bin_path(path, splited_arg[0]);
-		if (bin_path)
+		if (bin_path || is_in_dir(ft_split(argv[2 + i], ' ')))
 			result++;
 		else
 			printf("command not found: %s\n", splited_arg[0]);
@@ -38,50 +39,47 @@ static int	get_nb_valide_cmd(int argc, char **argv, char **path)
 	return (result);
 }
 
-static int	is_valid_cmd(char **new_arg, char **path)
+static t_cmd	*set_cmd_loop(size_t nb_valid_cmd, char **argv,
+							char **env, char **path)
 {
-	int		result;
-	char	*bin_path;
+	size_t	i;
+	size_t	k;
+	t_cmd	*cmd;
 
-	result = 0;
-	bin_path = get_bin_path(path, new_arg[0]);
-	if (bin_path)
-		result = 1;
-	free(bin_path);
-	free_split(new_arg);
-	return (result);
+	cmd = ft_calloc(sizeof(t_cmd), (nb_valid_cmd + 1));
+	if (!cmd)
+		return (NULL);
+	i = 0;
+	k = 0;
+	while (k < nb_valid_cmd)
+	{
+		if (is_in_dir(ft_split(argv[2 + i], ' '))
+			|| is_valid_cmd(ft_split(argv[2 + i], ' '), path))
+		{
+			cmd[k].arg = get_arg(path, argv[2 + i]);
+			cmd[k].env = env;
+			k++;
+		}
+		i++;
+	}
+	return (cmd);
 }
 
 t_cmd	*set_cmd(int argc, char **argv, char **env)
 {
 	char	**path;
-	size_t	i;
-	size_t	k;
-	t_cmd	*result;
-	size_t	nb_valide_cmd;
+	size_t	nb_valid_cmd;
+	t_cmd	*cmd;
 
 	path = ft_split(get_path(env), ':');
 	if (!path)
 		return (NULL);
-	nb_valide_cmd = get_nb_valide_cmd(argc, argv, path);
-	if (!nb_valide_cmd)
+	nb_valid_cmd = get_nb_valide_cmd(argc, argv, path);
+	if (!nb_valid_cmd)
 		return (NULL);
-	result = malloc(sizeof(t_cmd) * (nb_valide_cmd + 1));
-	i = 0;
-	k = 0;
-	while (k < nb_valide_cmd)
-	{
-		if (is_valid_cmd(ft_split(argv[2 + i], ' '), path))
-		{
-			result[k].arg = get_arg(path, argv[2 + i]);
-			result[k].env = env;
-			k++;
-		}
-		i++;
-	}
-	result[k].arg = NULL;
+	cmd = set_cmd_loop(nb_valid_cmd, argv, env, path);
 	free_split(path);
-	return (result);
+	return (cmd);
 }
 
 size_t	get_nb_cmd(t_cmd *cmd)
