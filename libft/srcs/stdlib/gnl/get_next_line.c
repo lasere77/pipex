@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/27 18:47:00 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/04 16:20:23 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/08 09:47:40 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,11 +105,10 @@ char	*get_next_line(int fd)
 		return (NULL);
 	result = ft_get_line(buffer[fd]);
 	buffer[fd] = erase_line(buffer[fd]);
-	if (!result)
+	if (!result || fd <= 2)
 	{
 		free(buffer[fd]);
 		buffer[fd] = NULL;
-		return (NULL);
 	}
 	return (result);
 }

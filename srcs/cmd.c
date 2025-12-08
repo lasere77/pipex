@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 13:25:33 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/07 13:23:20 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/07 17:11:40 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ static t_cmd	*set_cmd_loop(size_t nb_valid_cmd, char **argv,
 			|| is_valid_cmd(ft_split(argv[2 + i], ' '), path))
 		{
 			cmd[k].arg = get_arg(path, argv[2 + i]);
+			printf("la -> %s\n", cmd[k].arg[0]);
 			cmd[k].env = env;
 			k++;
 		}

@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 09:35:56 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/07 12:11:19 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/08 10:27:26 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,42 @@
 #include "utils.h"
 #include "utils_cmd.h"
 #include "process.h"
+#include "get_next_line.h"
 
-static void	write_in_file(char *file_path, int fd)
+static	int	here_doc(char *limiter)
+{
+	char	*str;
+	int		pipefd[2];
+	size_t	i;
+
+	if (pipe(pipefd) == -1)
+	{
+		perror("pipex");
+		return (-2);
+	}
+	str = get_next_line(0);
+	while (ft_strncmp(str, limiter, ft_strlen(limiter)))
+	{
+		free(str);
+		str = get_next_line(0);
+		i = 0;
+		while (str[i] != '\n')
+		{
+			write(pipefd[1], &str[i], 1);
+			i++;
+		}
+	}
+	close(pipefd[1]);
+	return (pipefd[0]);
+}
+
+static void	write_in_file(char *file_path, int fd, char append)
 {
 	char	c;
 	int		write_file;
 
-	unlink(file_path);
+	if (!append)
+		unlink(file_path);
 	write_file = open(file_path, O_RDONLY | O_WRONLY | O_CREAT, 0644);
 	if (write_file == -1)
 		return ;
@@ -64,15 +93,23 @@ int	main(int argc, char *argv[], char *env[])
 	t_cmd	*cmd;
 	int		fd;
 	int		status;
+	int		is_here_doc;
 
-	cmd = set_cmd(argc, argv, env);
+	is_here_doc = 0;
+	if (!ft_strncmp(argv[1], "here_doc", 9))
+	{
+		fd = here_doc(argv[2]);
+		is_here_doc++;
+	}
+	else
+		fd = open_input_file(argv[1]);
+	cmd = set_cmd(argc - is_here_doc, &argv[is_here_doc], env);
 	if (!cmd)
 		return (1);
-	fd = open_input_file(argv[1]);
 	fd = exec_cmd(cmd, fd);
 	status = cmd[get_nb_cmd(cmd) - 1].status;
 	unset_cmd(cmd);
-	write_in_file(argv[argc - 1], fd);
+	write_in_file(argv[argc - 1], fd, 0);
 	if (fd >= 0)
 		close(fd);
 	if (!is_last_cmd_valid(argc, argv, env))
