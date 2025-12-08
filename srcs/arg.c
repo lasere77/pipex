@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 23:14:24 by mewen             #+#    #+#             */
-/*   Updated: 2025/12/07 11:59:45 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/08 11:33:23 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ char	*get_bin_path(char **path, char *name_bin)
 		res[len_path] = '/';
 		ft_memcpy(res + len_path + 1, name_bin, len_name_bin);
 		res[len_name_bin + 1 + len_path] = 0;
-		if (access(res, F_OK | X_OK) == 0)
+		if (res && access(res, F_OK | X_OK) == 0)
 			return (res);
 		free(res);
 		i++;

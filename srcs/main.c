@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 09:35:56 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/08 10:27:26 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/08 14:13:27 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,13 @@ static	int	here_doc(char *limiter)
 		free(str);
 		str = get_next_line(0);
 		i = 0;
-		while (str[i] != '\n')
+		while (str[i])
 		{
 			write(pipefd[1], &str[i], 1);
 			i++;
 		}
 	}
+	free(str);
 	close(pipefd[1]);
 	return (pipefd[0]);
 }

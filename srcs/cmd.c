@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 13:25:33 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/07 17:11:40 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/08 14:03:32 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static int	get_nb_valide_cmd(int argc, char **argv, char **path)
 		if (bin_path || is_in_dir(ft_split(argv[2 + i], ' ')))
 			result++;
 		else
-			ft_printf("command not found: %s\n", splited_arg[0]);
+			ft_printf("command not found: %s\n", argv[2 + i]);
 		free(bin_path);
 		free_split(splited_arg);
 		i++;
@@ -58,7 +58,6 @@ static t_cmd	*set_cmd_loop(size_t nb_valid_cmd, char **argv,
 			|| is_valid_cmd(ft_split(argv[2 + i], ' '), path))
 		{
 			cmd[k].arg = get_arg(path, argv[2 + i]);
-			printf("la -> %s\n", cmd[k].arg[0]);
 			cmd[k].env = env;
 			k++;
 		}
@@ -74,11 +73,12 @@ t_cmd	*set_cmd(int argc, char **argv, char **env)
 	t_cmd	*cmd;
 
 	path = ft_split(get_path(env), ':');
-	if (!path)
-		return (NULL);
 	nb_valid_cmd = get_nb_valide_cmd(argc, argv, path);
 	if (!nb_valid_cmd)
+	{
+		free_split(path);
 		return (NULL);
+	}
 	cmd = set_cmd_loop(nb_valid_cmd, argv, env, path);
 	free_split(path);
 	return (cmd);
