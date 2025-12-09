@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 13:25:33 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/08 14:03:32 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/09 11:37:42 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ static int	get_nb_valide_cmd(int argc, char **argv, char **path)
 		free_split(splited_arg);
 		i++;
 	}
+	if (result > 0 && access(argv[argc - 1], W_OK) != 0)
+		result--;
 	return (result);
 }
 

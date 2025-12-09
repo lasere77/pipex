@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 09:35:56 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/08 14:13:27 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/09 11:40:30 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,19 @@ static void	write_in_file(char *file_path, int fd, char append)
 	int		write_file;
 
 	if (!append)
-		unlink(file_path);
-	write_file = open(file_path, O_RDONLY | O_WRONLY | O_CREAT, 0644);
+	{
+		if (access(file_path, F_OK | W_OK) == 0)
+			unlink(file_path);
+		write_file = open(file_path, O_RDONLY | O_WRONLY | O_CREAT, 0644);
+	}
+	else
+		write_file = open(file_path, O_RDONLY | O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (write_file == -1)
+	{
+		perror("open");
 		return ;
-	while (read(fd, &c, 1))
+	}
+	while (read(fd, &c, 1) > 0)
 		write(write_file, &c, 1);
 	close(write_file);
 }
@@ -74,12 +82,14 @@ static int	exec_cmd(t_cmd *cmd, int fd)
 {
 	pid_t	*list_pid;
 	size_t	i;
+	size_t	nb_cmd;
 
-	list_pid = malloc(sizeof(pid_t) * (get_nb_cmd(cmd) + 1));
+	nb_cmd = get_nb_cmd(cmd);
+	list_pid = malloc(sizeof(pid_t) * (nb_cmd + 1));
 	if (!list_pid)
 		return (-1);
 	i = 0;
-	while (i < get_nb_cmd(cmd))
+	while (i < nb_cmd)
 	{
 		fd = do_child(cmd, i, fd, &list_pid[i]);
 		i++;
@@ -110,7 +120,7 @@ int	main(int argc, char *argv[], char *env[])
 	fd = exec_cmd(cmd, fd);
 	status = cmd[get_nb_cmd(cmd) - 1].status;
 	unset_cmd(cmd);
-	write_in_file(argv[argc - 1], fd, 0);
+	write_in_file(argv[argc - 1], fd, is_here_doc);
 	if (fd >= 0)
 		close(fd);
 	if (!is_last_cmd_valid(argc, argv, env))
