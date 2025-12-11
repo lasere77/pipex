@@ -21,7 +21,7 @@ void	panic_free(t_cmd *cmd, char *str)
 	exit(EXIT_FAILURE);
 }
 
-void	do_dup2(t_cmd *cmd, int i)
+void	get_infile_outfile(t_cmd *cmd, int i)
 {
 	if (cmd[i].infile)
 		cmd[i].fd_in = open(cmd[i].infile, O_RDONLY);
@@ -32,6 +32,10 @@ void	do_dup2(t_cmd *cmd, int i)
 		cmd[i].fd_out = open(cmd[i].outfile,
 				O_RDONLY | O_WRONLY | O_CREAT, 0644);
 	}
+}
+
+void	do_dup2(t_cmd *cmd, int i)
+{
 	if (dup2(cmd[i].fd_in, STDIN_FILENO) == -1)
 		panic_free(cmd, "dup2");
 	if (dup2(cmd[i].fd_out, STDOUT_FILENO) == -1)
@@ -56,7 +60,7 @@ void	do_child(t_cmd *cmd, int i, char **env)
 		panic_free(cmd, "fork");
 	if (pid == 0)
 	{
-		do_dup2(cmd, i);
+		get_infile_outfile(cmd, i);
 		path = get_path(env);
 		bin_path = get_bin_path(path, cmd[i].argv[0]);
 		free_split(path);
@@ -66,6 +70,7 @@ void	do_child(t_cmd *cmd, int i, char **env)
 				panic_free(cmd, cmd[i].argv[0]);
 			bin_path = cmd[i].argv[0];
 		}
+		do_dup2(cmd, i);
 		execve(bin_path, cmd[i].argv, env);
 		free(bin_path);
 		panic_free(cmd, "execve");

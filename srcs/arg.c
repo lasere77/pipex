@@ -61,32 +61,10 @@ void	free_split(char **strs)
 {
 	size_t	i;
 
+	if (!strs)
+		return ;
 	i = 0;
 	while (strs[i])
 		free(strs[i++]);
 	free(strs);
 }
-
-// char	**get_new_arg(char **path, char *argv)
-// {
-// 	char	**new_arg;
-// 	char	*tmp;
-
-// 	if (!path)
-// 		return ;
-// 	new_arg = ft_split(argv, ' ');
-// 	if (!new_arg)
-// 		return (NULL);
-// 	if (access(new_arg[0], F_OK | X_OK) != 0)
-// 	{
-// 		tmp = get_bin_path(path, new_arg[0], ft_strlen(new_arg[0]));
-// 		if (!tmp)
-// 		{
-// 			free_split(new_arg);
-// 			return (NULL);
-// 		}
-// 		free(new_arg[0]);
-// 		new_arg[0] = tmp;
-// 	}
-// 	return (new_arg);
-// }
