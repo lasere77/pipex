@@ -5,65 +5,114 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/07 11:13:20 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/07 11:37:52 by mcolin           ###   ########.fr       */
+/*   Created: 2025/12/11 15:08:24 by mcolin            #+#    #+#             */
+/*   Updated: 2025/12/11 17:30:47 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "process.h"
 
-static void	child_fonction(t_cmd cmd, int fd, int pipefd[2])
+void	panic_free(t_cmd *cmd, char *str)
 {
-	if (fd >= 0)
-	{
-		dup2(fd, STDIN_FILENO);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(fd);
-		close(pipefd[0]);
-		close(pipefd[1]);
-		execve(cmd.arg[0], cmd.arg, cmd.env);
-		perror("execve");
-	}
-	close(pipefd[0]);
-	close(pipefd[1]);
+	if (str)
+		perror(str);
+	close_cmd_fds(cmd);
+	unset_cmd(cmd);
+	exit(EXIT_FAILURE);
 }
 
-int	do_child(t_cmd *cmd, int index_cmd, int fd, pid_t *list_pid)
+void	do_dup2(t_cmd *cmd, int i)
 {
-	pid_t	pid;
-	int		pipefd[2];
+	if (cmd[i].infile)
+		cmd[i].fd_in = open(cmd[i].infile, O_RDONLY);
+	if (cmd[i].outfile)
+	{
+		if (access(cmd[i].outfile, F_OK | W_OK) == 0)
+			unlink(cmd[i].outfile);
+		cmd[i].fd_out = open(cmd[i].outfile,
+				O_RDONLY | O_WRONLY | O_CREAT, 0644);
+	}
+	if (dup2(cmd[i].fd_in, STDIN_FILENO) == -1)
+		panic_free(cmd, "dup2");
+	if (dup2(cmd[i].fd_out, STDOUT_FILENO) == -1)
+		panic_free(cmd, "dup2");
+	if (cmd[i].fd_in >= 0)
+		close(cmd[i].fd_in);
+	if (cmd[i].fd_out >= 0)
+		close(cmd[i].fd_out);
+	if (cmd[i + 1].valid && cmd[i + 1].fd_in >= 0)
+		close(cmd[i + 1].fd_in);
+}
 
-	if (pipe(pipefd) == -1)
-	{
-		perror("pipe");
-		panic_free(cmd, list_pid);
-	}
+void	do_child(t_cmd *cmd, int i, char **env)
+{
+	char	**path;
+	char	*bin_path;
+	pid_t	pid;
+
 	pid = fork();
+	cmd[i].pid = pid;
 	if (pid == -1)
-	{
-		perror("fork");
-		panic_free(cmd, list_pid);
-	}
+		panic_free(cmd, "fork");
 	if (pid == 0)
 	{
-		child_fonction(cmd[index_cmd], fd, pipefd);
-		panic_free(cmd, list_pid);
+		do_dup2(cmd, i);
+		path = get_path(env);
+		bin_path = get_bin_path(path, cmd[i].argv[0]);
+		free_split(path);
+		if (!bin_path)
+		{
+			if (access(cmd[i].argv[0], F_OK | X_OK) != 0)
+				panic_free(cmd, cmd[i].argv[0]);
+			bin_path = cmd[i].argv[0];
+		}
+		execve(bin_path, cmd[i].argv, env);
+		free(bin_path);
+		panic_free(cmd, "execve");
 	}
-	close(pipefd[1]);
-	if (fd > 2)
-		close(fd);
-	list_pid[0] = pid;
-	return (pipefd[0]);
 }
 
-void	wait_child(t_cmd *cmd, pid_t *list_pid)
+int	pipex(t_cmd *cmd, char **env)
 {
-	size_t	i;
+	int	pipefd[2];
+	int	i;
 
 	i = 0;
-	while (i < get_nb_cmd(cmd))
+	while (cmd[i].valid)
 	{
-		waitpid(list_pid[i], &cmd[i].status, 0);
+		if (!cmd[i].outfile)
+		{
+			if (pipe(pipefd) == -1)
+				panic_free(cmd, "pipe");
+			cmd[i].fd_out = pipefd[1];
+			cmd[i + 1].fd_in = pipefd[0];
+		}
+		do_child(cmd, i, env);
+		if (cmd[i].fd_in >= 0)
+			close(cmd[i].fd_in);
+		if (cmd[i].fd_out >= 0)
+			close(cmd[i].fd_out);
 		i++;
 	}
+	return (get_status(cmd));
+}
+
+int	get_status(t_cmd *cmd)
+{
+	int	status;
+	int	i;
+
+	i = 0;
+	while (cmd[i].valid)
+	{
+		waitpid(cmd[i].pid, &status, 0);
+		if (WIFEXITED(status))
+			WEXITSTATUS(status);
+		else if (WIFSIGNALED(status))
+			WTERMSIG(status);
+		else if (WIFSTOPPED(status))
+			WSTOPSIG(status);
+		i++;
+	}
+	return (WIFEXITED(status));
 }

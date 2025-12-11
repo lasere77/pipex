@@ -6,16 +6,17 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 23:14:24 by mewen             #+#    #+#             */
-/*   Updated: 2025/12/08 11:33:23 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:22:55 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "arg.h"
 
-char	*get_path(char *env[])
+char	**get_path(char *env[])
 {
-	size_t	i;
 	int		cond;
+	size_t	i;
+	char	**splited_path;	
 
 	i = 0;
 	cond = 1;
@@ -23,13 +24,14 @@ char	*get_path(char *env[])
 		cond = ft_strncmp(env[i++], "PATH=", 5);
 	if (!env[i])
 		return (NULL);
-	return (env[i - 1] + 5);
+	splited_path = ft_split(env[i - 1] + 5, ':');
+	return (splited_path);
 }
 
 char	*get_bin_path(char **path, char *name_bin)
 {
-	size_t	i;
 	char	*res;
+	size_t	i;
 	size_t	len_path;
 	size_t	len_name_bin;
 
@@ -47,7 +49,7 @@ char	*get_bin_path(char **path, char *name_bin)
 		res[len_path] = '/';
 		ft_memcpy(res + len_path + 1, name_bin, len_name_bin);
 		res[len_name_bin + 1 + len_path] = 0;
-		if (res && access(res, F_OK | X_OK) == 0)
+		if (access(res, F_OK | X_OK) == 0)
 			return (res);
 		free(res);
 		i++;
@@ -55,19 +57,36 @@ char	*get_bin_path(char **path, char *name_bin)
 	return (NULL);
 }
 
-char	**get_arg(char **path, char *arg)
+void	free_split(char **strs)
 {
-	char	**new_arg;
-	char	*tmp;
+	size_t	i;
 
-	new_arg = ft_split(arg, ' ');
-	if (!new_arg)
-		return (NULL);
-	tmp = new_arg[0];
-	new_arg[0] = get_bin_path(path, new_arg[0]);
-	if (!new_arg[0])
-		new_arg[0] = tmp;
-	else
-		free(tmp);
-	return (new_arg);
+	i = 0;
+	while (strs[i])
+		free(strs[i++]);
+	free(strs);
 }
+
+// char	**get_new_arg(char **path, char *argv)
+// {
+// 	char	**new_arg;
+// 	char	*tmp;
+
+// 	if (!path)
+// 		return ;
+// 	new_arg = ft_split(argv, ' ');
+// 	if (!new_arg)
+// 		return (NULL);
+// 	if (access(new_arg[0], F_OK | X_OK) != 0)
+// 	{
+// 		tmp = get_bin_path(path, new_arg[0], ft_strlen(new_arg[0]));
+// 		if (!tmp)
+// 		{
+// 			free_split(new_arg);
+// 			return (NULL);
+// 		}
+// 		free(new_arg[0]);
+// 		new_arg[0] = tmp;
+// 	}
+// 	return (new_arg);
+// }

@@ -5,25 +5,29 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/06 13:24:05 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/07 12:10:31 by mcolin           ###   ########.fr       */
+/*   Created: 2025/12/10 14:15:05 by mcolin            #+#    #+#             */
+/*   Updated: 2025/12/11 15:14:19 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CMD_H
 # define CMD_H
 
-# include <stddef.h>
+# include "arg.h"
 
 typedef struct s_cmd
 {
-	char	**arg;
-	char	**env;
-	int		status;
+	char	*infile;
+	char	*outfile;
+	char	**argv;
+	int		fd_in;
+	int		fd_out;
+	int		pid;
+	char	valid;
 }			t_cmd;
 
-t_cmd	*set_cmd(int argc, char **argv, char **env);
-void	unset_cmd(t_cmd	*cmd);
-size_t	get_nb_cmd(t_cmd *cmd);
+t_cmd	*set_cmd(int nb_cmd, char **argv);
+void	close_cmd_fds(t_cmd *cmd);
+void	unset_cmd(t_cmd *cmd);
 
 #endif

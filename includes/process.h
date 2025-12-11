@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/07 11:14:11 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/07 12:05:17 by mcolin           ###   ########.fr       */
+/*   Created: 2025/12/11 15:08:53 by mcolin            #+#    #+#             */
+/*   Updated: 2025/12/11 17:31:54 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,15 @@
 # define PROCESS_H
 
 # include "cmd.h"
-# include "utils.h"
 
 # include <sys/wait.h>
+# include <stdio.h>
 
-int		do_child(t_cmd *cmd, int index_cmd, int fd, pid_t *list_pid);
-void	wait_child(t_cmd *cmd, pid_t *list_pid);
+int		pipex(t_cmd *cmd, char **env);
+void	do_child(t_cmd *cmd, int i, char **env);
+void	do_dup2(t_cmd *cmd, int i);
+int		get_status(t_cmd *cmd);
+
+void	panic_free(t_cmd *cmd, char *str);
 
 #endif

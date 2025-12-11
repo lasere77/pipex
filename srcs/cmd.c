@@ -5,105 +5,64 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/06 13:25:33 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/09 11:37:42 by mcolin           ###   ########.fr       */
+/*   Created: 2025/12/10 14:21:03 by mcolin            #+#    #+#             */
+/*   Updated: 2025/12/11 15:17:58 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cmd.h"
-#include "arg.h"
-#include "utils.h"
-#include "utils_cmd.h"
-#include "ft_printf.h"
 
-static int	get_nb_valide_cmd(int argc, char **argv, char **path)
+t_cmd	*set_cmd(int nb_cmd, char **argv)
 {
-	int		i;
-	int		result;
-	char	**splited_arg;
-	char	*bin_path;
-
-	i = 0;
-	result = 0;
-	while (i < argc - 3)
-	{
-		splited_arg = ft_split(argv[2 + i], ' ');
-		bin_path = get_bin_path(path, splited_arg[0]);
-		if (bin_path || is_in_dir(ft_split(argv[2 + i], ' ')))
-			result++;
-		else
-			ft_printf("command not found: %s\n", argv[2 + i]);
-		free(bin_path);
-		free_split(splited_arg);
-		i++;
-	}
-	if (result > 0 && access(argv[argc - 1], W_OK) != 0)
-		result--;
-	return (result);
-}
-
-static t_cmd	*set_cmd_loop(size_t nb_valid_cmd, char **argv,
-							char **env, char **path)
-{
-	size_t	i;
-	size_t	k;
 	t_cmd	*cmd;
+	size_t	i;
 
-	cmd = ft_calloc(sizeof(t_cmd), (nb_valid_cmd + 1));
+	cmd = malloc(sizeof(t_cmd) * (nb_cmd + 1));
 	if (!cmd)
 		return (NULL);
 	i = 0;
-	k = 0;
-	while (k < nb_valid_cmd)
+	while (i < (size_t)nb_cmd)
 	{
-		if (is_in_dir(ft_split(argv[2 + i], ' '))
-			|| is_valid_cmd(ft_split(argv[2 + i], ' '), path))
-		{
-			cmd[k].arg = get_arg(path, argv[2 + i]);
-			cmd[k].env = env;
-			k++;
-		}
+		cmd[i].valid = 1;
+		cmd[i].infile = NULL;
+		if (i == 0)
+			cmd[i].infile = argv[1];
+		cmd[i].outfile = NULL;
+		if (i == (size_t)nb_cmd - 1)
+			cmd[i].outfile = argv[nb_cmd + 2];
+		cmd[i].argv = ft_split(argv[2 + i], ' ');
+		cmd[i].fd_in = -1;
+		cmd[i].fd_out = -1;
 		i++;
 	}
+	cmd[nb_cmd].valid = 0;
 	return (cmd);
 }
 
-t_cmd	*set_cmd(int argc, char **argv, char **env)
-{
-	char	**path;
-	size_t	nb_valid_cmd;
-	t_cmd	*cmd;
-
-	path = ft_split(get_path(env), ':');
-	nb_valid_cmd = get_nb_valide_cmd(argc, argv, path);
-	if (!nb_valid_cmd)
-	{
-		free_split(path);
-		return (NULL);
-	}
-	cmd = set_cmd_loop(nb_valid_cmd, argv, env, path);
-	free_split(path);
-	return (cmd);
-}
-
-size_t	get_nb_cmd(t_cmd *cmd)
-{
-	size_t	i;
-
-	if (!cmd)
-		return (0);
-	i = 0;
-	while (cmd[i].arg)
-		i++;
-	return (i);
-}
-
-void	unset_cmd(t_cmd	*cmd)
+void	close_cmd_fds(t_cmd *cmd)
 {
 	size_t	i;
 
 	i = 0;
-	while (cmd[i].arg)
-		free_split(cmd[i++].arg);
+	while (cmd[i].valid)
+	{
+		if (cmd[i].fd_in >= 0)
+			close(cmd[i].fd_in);
+		if (cmd[i].fd_out >= 0)
+			close(cmd[i].fd_out);
+		i++;
+	}
+}
+
+void	unset_cmd(t_cmd *cmd)
+{
+	size_t	i;
+
+	i = 0;
+	while (cmd[i].valid)
+	{
+		free_split(cmd[i].argv);
+		i++;
+	}
 	free(cmd);
 }
