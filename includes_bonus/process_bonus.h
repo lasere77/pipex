@@ -1,29 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   process_utils.h                                    :+:      :+:    :+:   */
+/*   process_bonus.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/12 10:38:21 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/12 14:08:42 by mcolin           ###   ########.fr       */
+/*   Created: 2025/12/11 15:08:53 by mcolin            #+#    #+#             */
+/*   Updated: 2025/12/12 15:01:37 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PROCESS_UTILS_H
-# define PROCESS_UTILS_H
+#ifndef PROCESS_H
+# define PROCESS_H
 
-# include "cmd.h"
-# include "ft_printf.h"
+# include "cmd_bonus.h"
 
-# include <sys/wait.h>
-# include <stdio.h>
-
-int	here_doc(char *limiter);
-
-void	panic_free(t_cmd *cmd, char *str, int exit_code);
-char	*get_command(t_cmd *cmd, int i, char **env);
-void	do_dup2(t_cmd *cmd, int i);
-int		get_status(t_cmd *cmd);
+void	do_child(t_cmd *cmd, int i, char **env, char **argv);
+void	get_infile_outfile(t_cmd *cmd, int i, char **argv);
+int		pipex(t_cmd *cmd, char **env, char **argv);
 
 #endif
