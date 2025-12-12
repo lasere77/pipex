@@ -6,20 +6,12 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 15:08:24 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/11 17:30:47 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/12 10:48:48 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "process.h"
-
-void	panic_free(t_cmd *cmd, char *str)
-{
-	if (str)
-		perror(str);
-	close_cmd_fds(cmd);
-	unset_cmd(cmd);
-	exit(EXIT_FAILURE);
-}
+#include "process_utils.h"
 
 void	get_infile_outfile(t_cmd *cmd, int i)
 {
@@ -34,46 +26,23 @@ void	get_infile_outfile(t_cmd *cmd, int i)
 	}
 }
 
-void	do_dup2(t_cmd *cmd, int i)
-{
-	if (dup2(cmd[i].fd_in, STDIN_FILENO) == -1)
-		panic_free(cmd, "dup2");
-	if (dup2(cmd[i].fd_out, STDOUT_FILENO) == -1)
-		panic_free(cmd, "dup2");
-	if (cmd[i].fd_in >= 0)
-		close(cmd[i].fd_in);
-	if (cmd[i].fd_out >= 0)
-		close(cmd[i].fd_out);
-	if (cmd[i + 1].valid && cmd[i + 1].fd_in >= 0)
-		close(cmd[i + 1].fd_in);
-}
-
 void	do_child(t_cmd *cmd, int i, char **env)
 {
-	char	**path;
 	char	*bin_path;
 	pid_t	pid;
 
 	pid = fork();
 	cmd[i].pid = pid;
 	if (pid == -1)
-		panic_free(cmd, "fork");
+		panic_free(cmd, "fork", EXIT_FAILURE);
 	if (pid == 0)
 	{
 		get_infile_outfile(cmd, i);
-		path = get_path(env);
-		bin_path = get_bin_path(path, cmd[i].argv[0]);
-		free_split(path);
-		if (!bin_path)
-		{
-			if (access(cmd[i].argv[0], F_OK | X_OK) != 0)
-				panic_free(cmd, cmd[i].argv[0]);
-			bin_path = cmd[i].argv[0];
-		}
+		bin_path = get_command(cmd, i, env);
 		do_dup2(cmd, i);
 		execve(bin_path, cmd[i].argv, env);
 		free(bin_path);
-		panic_free(cmd, "execve");
+		panic_free(cmd, "execve", EXIT_FAILURE);
 	}
 }
 
@@ -88,7 +57,7 @@ int	pipex(t_cmd *cmd, char **env)
 		if (!cmd[i].outfile)
 		{
 			if (pipe(pipefd) == -1)
-				panic_free(cmd, "pipe");
+				panic_free(cmd, "pipe", EXIT_FAILURE);
 			cmd[i].fd_out = pipefd[1];
 			cmd[i + 1].fd_in = pipefd[0];
 		}
@@ -100,24 +69,4 @@ int	pipex(t_cmd *cmd, char **env)
 		i++;
 	}
 	return (get_status(cmd));
-}
-
-int	get_status(t_cmd *cmd)
-{
-	int	status;
-	int	i;
-
-	i = 0;
-	while (cmd[i].valid)
-	{
-		waitpid(cmd[i].pid, &status, 0);
-		if (WIFEXITED(status))
-			WEXITSTATUS(status);
-		else if (WIFSIGNALED(status))
-			WTERMSIG(status);
-		else if (WIFSTOPPED(status))
-			WSTOPSIG(status);
-		i++;
-	}
-	return (WIFEXITED(status));
 }

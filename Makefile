@@ -6,17 +6,18 @@
 #    By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/20 21:59:30 by mcolin            #+#    #+#              #
-#    Updated: 2025/12/11 15:11:45 by mcolin           ###   ########.fr        #
+#    Updated: 2025/12/12 10:46:27 by mcolin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC=cc
 NAME = pipex
 SRCS_DIR = srcs/
-SOURCES =	$(SRCS_DIR)main.c		\
-			$(SRCS_DIR)arg.c		\
-			$(SRCS_DIR)cmd.c		\
-			$(SRCS_DIR)process.c	\
+SOURCES =	$(SRCS_DIR)main.c			\
+			$(SRCS_DIR)arg.c			\
+			$(SRCS_DIR)cmd.c			\
+			$(SRCS_DIR)process.c		\
+			$(SRCS_DIR)process_utils.c	\
 
 OBJ_DIR = .build/
 OBJS = $(SOURCES:$(SRCS_DIR)%.c=$(OBJ_DIR)%.o)

@@ -6,66 +6,69 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 17:30:42 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/04 16:46:11 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/12 10:30:07 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-void	ft_printf_putnbr(int n, int *count)
+void	ft_printf_putnbr(int fd, int n, int *count)
 {
-	char				a;
+	char	a;
 
 	if (n == -2147483648)
 	{
-		*count += write(1, "-2147483648", 11);
+		*count += write(fd, "-2147483648", 11);
 		return ;
 	}
 	if (n < 0)
 	{
-		*count += write(1, "-", 1);
+		*count += write(fd, "-", 1);
 		n *= -1;
 	}
 	if (n <= 9)
 	{
 		a = n + '0';
-		*count += write(1, &a, 1);
+		*count += write(fd, &a, 1);
 	}
 	else
 	{
-		ft_printf_putnbr(n / 10, count);
+		ft_printf_putnbr(fd, n / 10, count);
 		a = n % 10 + '0';
-		*count += write(1, &a, 1);
+		*count += write(fd, &a, 1);
 	}
 }
 
-void	ft_printf_putunbr(unsigned int n, int *count,
-	const char *base, unsigned char digit_max_base)
+void	ft_printf_putunbr(int fd, unsigned int n, int *count, const char *base)
 {
+	unsigned int	digit_max_base;
+
+	digit_max_base = ft_strlen(base);
 	if (n <= digit_max_base - 1)
-		*count += write(1, &base[n % digit_max_base], 1);
+		*count += write(fd, &base[n % digit_max_base], 1);
 	else
 	{
-		ft_printf_putunbr(n / digit_max_base, count, base, digit_max_base);
-		*count += write(1, &base[n % digit_max_base], 1);
+		ft_printf_putunbr(fd, n / digit_max_base, count, base);
+		*count += write(fd, &base[n % digit_max_base], 1);
 	}
 }
 
-void	ft_printf_putaddr(unsigned long long n, int *count, const char	*base)
+void	ft_printf_putaddr(int fd, unsigned long long n, int *count,
+						const char	*base)
 {
 	if (!n)
 	{
-		*count += write(1, "(nil)", 5);
+		*count += write(fd, "(nil)", 5);
 		return ;
 	}
 	if (n <= 15)
 	{
-		*count += write(1, "0x", 2);
-		*count += write(1, &base[n % 16], 1);
+		*count += write(fd, "0x", 2);
+		*count += write(fd, &base[n % 16], 1);
 	}
 	else
 	{
-		ft_printf_putaddr(n / 16, count, base);
-		*count += write(1, &base[n % 16], 1);
+		ft_printf_putaddr(fd, n / 16, count, base);
+		*count += write(fd, &base[n % 16], 1);
 	}
 }
