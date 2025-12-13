@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 15:08:24 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/12 15:52:31 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/13 12:10:04 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static	int	here_doc(char *limiter)
 	}
 	new_limiter = ft_strjoin(limiter, "\n");
 	str = get_next_line(0);
-	while (ft_strncmp(str, new_limiter, ft_strlen(limiter)))
+	while (ft_strncmp(str, new_limiter, ft_strlen(new_limiter)))
 	{
 		free(str);
 		str = get_next_line(0);
@@ -48,22 +48,24 @@ void	get_infile_outfile(t_cmd *cmd, int i, char **argv)
 	{
 		if (!ft_strncmp(argv[1], "here_doc", 9))
 			cmd[i].fd_in = here_doc(argv[2]);
-		else
+		else if (access(cmd[i].infile, F_OK | R_OK) == 0)
 			cmd[i].fd_in = open(cmd[i].infile, O_RDONLY);
+		else
+			panic_free(cmd, "acces", EXIT_FAILURE);
 	}
 	if (cmd[i].outfile)
 	{
 		if (!ft_strncmp(argv[1], "here_doc", 9))
-		{
 			cmd[i].fd_out = open(cmd[i].outfile,
-				O_RDONLY | O_WRONLY | O_CREAT | O_APPEND, 0644);
-		}
+					O_RDONLY | O_WRONLY | O_CREAT | O_APPEND, 0644);
 		else
 		{
 			if (access(cmd[i].outfile, F_OK | W_OK) == 0)
 				unlink(cmd[i].outfile);
+			if (!cmd[i].outfile || *(cmd[i].outfile) == 0)
+				panic_free(cmd, "acces", EXIT_FAILURE);
 			cmd[i].fd_out = open(cmd[i].outfile,
-				O_RDONLY | O_WRONLY | O_CREAT, 0644);
+					O_RDONLY | O_WRONLY | O_CREAT, 0644);
 		}
 	}
 }
@@ -81,7 +83,11 @@ void	do_child(t_cmd *cmd, int i, char **env, char **argv)
 	{
 		get_infile_outfile(cmd, i, argv);
 		bin_path = get_command(cmd, i, env);
-		do_dup2(cmd, i);
+		if (do_dup2(cmd, i))
+		{
+			free(bin_path);
+			panic_free(cmd, "dup2", EXIT_FAILURE);
+		}
 		execve(bin_path, cmd[i].argv, env);
 		free(bin_path);
 		panic_free(cmd, "execve", EXIT_FAILURE);

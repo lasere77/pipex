@@ -6,12 +6,12 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 15:08:53 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/12 15:01:37 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/13 12:11:38 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PROCESS_H
-# define PROCESS_H
+#ifndef PROCESS_BONUS_H
+# define PROCESS_BONUS_H
 
 # include "cmd_bonus.h"
 

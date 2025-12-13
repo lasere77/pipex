@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 15:08:24 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/12 10:48:48 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/13 12:22:07 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,18 @@
 void	get_infile_outfile(t_cmd *cmd, int i)
 {
 	if (cmd[i].infile)
-		cmd[i].fd_in = open(cmd[i].infile, O_RDONLY);
+	{
+		if (access(cmd[i].infile, F_OK | R_OK) == 0)
+			cmd[i].fd_in = open(cmd[i].infile, O_RDONLY);
+		else
+			panic_free(cmd, "acces", EXIT_FAILURE);
+	}
 	if (cmd[i].outfile)
 	{
 		if (access(cmd[i].outfile, F_OK | W_OK) == 0)
 			unlink(cmd[i].outfile);
+		if (!cmd[i].outfile || *(cmd[i].outfile) == 0)
+			panic_free(cmd, "acces", EXIT_FAILURE);
 		cmd[i].fd_out = open(cmd[i].outfile,
 				O_RDONLY | O_WRONLY | O_CREAT, 0644);
 	}
@@ -39,7 +46,11 @@ void	do_child(t_cmd *cmd, int i, char **env)
 	{
 		get_infile_outfile(cmd, i);
 		bin_path = get_command(cmd, i, env);
-		do_dup2(cmd, i);
+		if (do_dup2(cmd, i))
+		{
+			free(bin_path);
+			panic_free(cmd, "dup2", EXIT_FAILURE);
+		}
 		execve(bin_path, cmd[i].argv, env);
 		free(bin_path);
 		panic_free(cmd, "execve", EXIT_FAILURE);

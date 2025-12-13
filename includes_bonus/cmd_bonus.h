@@ -6,12 +6,12 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 14:15:05 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/12 14:43:27 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/13 12:11:29 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CMD_H
-# define CMD_H
+#ifndef CMD_BONUS_H
+# define CMD_BONUS_H
 
 # include "arg_bonus.h"
 
