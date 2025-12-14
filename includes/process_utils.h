@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/12 10:38:21 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/13 12:20:48 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/14 11:52:05 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define PROCESS_UTILS_H
 
 # include "cmd.h"
-# include "ft_printf.h"
 
 # include <sys/wait.h>
 # include <stdio.h>

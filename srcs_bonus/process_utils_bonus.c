@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/12 10:37:49 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/13 12:09:01 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/14 11:35:33 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,27 +48,20 @@ char	*get_command(t_cmd *cmd, int i, char **env)
 	char	**path;
 	char	*bin_path;
 
+	if (cmd[i].argv[0] && ft_strchr(cmd[i].argv[0], '/'))
+	{
+		if (access(cmd[i].argv[0], F_OK | X_OK) == 0)
+			return (ft_strdup(cmd[i].argv[0]));
+		else
+			panic_free(cmd, cmd[i].argv[0], 127);
+	}
 	path = get_path(env);
 	bin_path = get_bin_path(path, cmd[i].argv[0]);
 	free_split(path);
 	if (!bin_path)
-	{
-		if (!cmd[i].argv[0] || !*(cmd[i].argv[0])
-			|| access(cmd[i].argv[0], F_OK | X_OK) != 0)
-		{
-			if (!cmd[i].argv[0] || !ft_strchr(cmd[i].argv[0], '/'))
-				ft_printfd(2, "%s: command not found\n", cmd[i].argv[0]);
-			else
-				panic_free(cmd, cmd[i].argv[0], 127);
-			panic_free(cmd, NULL, 127);
-		}
-		bin_path = ft_strdup(cmd[i].argv[0]);
-	}
-	if (access(bin_path, F_OK | X_OK) != 0)
-	{
-		free(bin_path);
 		panic_free(cmd, cmd[i].argv[0], 127);
-	}
+	if (access(bin_path, F_OK | X_OK) != 0)
+		panic_free(cmd, cmd[i].argv[0], 127);
 	return (bin_path);
 }
 

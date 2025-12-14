@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/22 16:40:13 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/04 16:53:03 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/13 18:22:13 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,29 +37,53 @@ static int	get_format(int fd, const char fmt, va_list va, int *count)
 	else
 	{
 		ft_printf_putchar(fd, '%', count);
-		return (1);
+		ft_printf_putchar(fd, fmt, count);
 	}
 	return (2);
+}
+
+static int	print_str(int fd, const char *fmt, size_t *i, size_t *j)
+{
+	char	*str;
+	int		count;
+
+	count = 0;
+	str = ft_substr(fmt, *j, *i - *j);
+	if (!str)
+		return (0);
+	write(fd, str, ft_strlen(str));
+	free(str);
+	count += *i - *j;
+	*j = *i;
+	if (fmt[*i] == '%')
+		*j += 2;
+	return (count);
 }
 
 int	ft_printf(const char *fmt, ...)
 {
 	va_list	va;
 	size_t	i;
+	size_t	j;
 	int		count;
 
 	if (!fmt)
 		return (-1);
 	va_start(va, fmt);
 	i = 0;
+	j = 0;
 	count = 0;
 	while (fmt[i])
 	{
+		if (fmt[i] == '\n' || fmt[i] == '%')
+			count += print_str(1, fmt, &i, &j);
 		if (fmt[i] == '%')
 			i += get_format(1, fmt[i + 1], va, &count);
 		else
-			count += write(1, &fmt[i++], 1);
+			i++;
 	}
+	if (i != j)
+		count += print_str(1, fmt, &i, &j);
 	va_end(va);
 	return (count);
 }
@@ -68,20 +92,26 @@ int	ft_printfd(int fd, const char *fmt, ...)
 {
 	va_list	va;
 	size_t	i;
+	size_t	j;
 	int		count;
 
 	if (!fmt)
 		return (-1);
 	va_start(va, fmt);
 	i = 0;
+	j = 0;
 	count = 0;
 	while (fmt[i])
 	{
+		if (fmt[i] == '\n' || fmt[i] == '%')
+			count += print_str(fd, fmt, &i, &j);
 		if (fmt[i] == '%')
 			i += get_format(fd, fmt[i + 1], va, &count);
 		else
-			count += write(fd, &fmt[i++], 1);
+			i++;
 	}
+	if (i != j)
+		count += print_str(fd, fmt, &i, &j);
 	va_end(va);
 	return (count);
 }

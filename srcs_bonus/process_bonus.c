@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 15:08:24 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/13 12:10:04 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/14 11:35:11 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void	do_child(t_cmd *cmd, int i, char **env, char **argv)
 		}
 		execve(bin_path, cmd[i].argv, env);
 		free(bin_path);
-		panic_free(cmd, "execve", EXIT_FAILURE);
+		panic_free(cmd, "execve", 127);
 	}
 }
 
