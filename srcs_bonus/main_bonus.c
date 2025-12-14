@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/12 11:22:08 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/12 15:49:11 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/14 16:29:16 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ int	main(int argc, char *argv[], char *env[])
 	if (!ft_strncmp(argv[1], "here_doc", 9))
 		is_here_doc = 1;
 	cmd = set_cmd(argc - 3 - is_here_doc, &argv[is_here_doc]);
+	if (!cmd || !env)
+		return (1);
 	status = pipex(cmd, env, argv);
 	unset_cmd(cmd);
 	return (status);

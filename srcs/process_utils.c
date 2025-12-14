@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/12 10:37:49 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/14 11:40:37 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/14 16:08:48 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,9 @@ int	get_status(t_cmd *cmd)
 		if (WIFEXITED(status))
 			result = WEXITSTATUS(status);
 		else if (WIFSIGNALED(status))
-			result = WTERMSIG(status);
+			result = WTERMSIG(status) + 128;
 		else if (WIFSTOPPED(status))
-			result = WSTOPSIG(status);
+			result = WSTOPSIG(status) + 128;
 		i++;
 	}
 	return (result);
@@ -51,7 +51,10 @@ char	*get_command(t_cmd *cmd, int i, char **env)
 	if (cmd[i].argv[0] && ft_strchr(cmd[i].argv[0], '/'))
 	{
 		if (access(cmd[i].argv[0], F_OK | X_OK) == 0)
-			return (ft_strdup(cmd[i].argv[0]));
+		{
+			bin_path = ft_strdup(cmd[i].argv[0]);
+			return (bin_path);
+		}
 		else
 			panic_free(cmd, cmd[i].argv[0], 127);
 	}

@@ -6,7 +6,7 @@
 /*   By: mcolin <mcolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 15:08:24 by mcolin            #+#    #+#             */
-/*   Updated: 2025/12/14 11:35:11 by mcolin           ###   ########.fr       */
+/*   Updated: 2025/12/15 10:48:54 by mcolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ static	int	here_doc(char *limiter)
 	char	*str;
 	char	*new_limiter;
 	int		pipefd[2];
-	size_t	i;
 
 	if (pipe(pipefd) == -1)
 	{
@@ -28,13 +27,13 @@ static	int	here_doc(char *limiter)
 	}
 	new_limiter = ft_strjoin(limiter, "\n");
 	str = get_next_line(0);
-	while (ft_strncmp(str, new_limiter, ft_strlen(new_limiter)))
+	while (new_limiter && str
+		&& ft_strncmp(str, new_limiter, ft_strlen(new_limiter)))
 	{
 		free(str);
 		str = get_next_line(0);
-		i = 0;
-		while (str[i])
-			write(pipefd[1], str + i++, 1);
+		if (str)
+			write(pipefd[1], str, ft_strlen(str));
 	}
 	free(str);
 	free(new_limiter);
